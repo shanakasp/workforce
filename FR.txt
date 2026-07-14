@@ -1,0 +1,43 @@
+1. Workflow templates: Create/edit templates defining named stages and the valid transitions
+between them (arbitrary graph — not assumed linear), plus which roles/users may perform each
+specific transition.
+2. Workflow items: Create items from a template, assign one or more users, move items through valid
+stages, record comments, and manage document attachments.
+
+3. Enforced transitions: Every stage transition must be validated against the template's rules server-
+side. Invalid transitions must be rejected. Authorization must never rely on the frontend.
+
+4. Immutable audit trail: Every operation (creation, transition, comment, assignment change,
+attachment change) must generate an immutable audit event. The complete current state of any
+item must be reconstructable entirely by replaying its event history. Cached/materialized state is
+allowed for performance, but the log is the source of truth, and your tests must prove the
+materialized state can be rebuilt from it.
+5. Concurrency safety — transitions: Provide a stress test simulating at least 20 concurrent users
+attempting to transition the same workflow item simultaneously. Exactly one valid transition must
+succeed; all others must fail gracefully with a well-defined conflict response. No corrupted state, no
+duplicate transitions, no lost updates. Optimistic concurrency (version numbers) or an equivalent
+mechanism is recommended.
+6. Concurrency safety — field edits: Separately from stage transitions, simulate two users
+concurrently editing a non-append field on the same item (e.g., due date, priority, description) and
+demonstrate your conflict-detection/resolution strategy (e.g., version-checked optimistic locking with
+a clear conflict error — last-write-wins is acceptable only if explicitly justified in your docs as an
+intentional trade-off, not a default).
+7. Crash recovery: Simulate a server failure occurring during a transition — after an audit event has
+been recorded but before all related materialized data has been updated. Implement a reconcile()
+mechanism that rebuilds state from the immutable event history and safely resolves the incomplete
+operation. Document your chosen recovery strategy (complete vs. roll back) and why.
+8. Notification queue: Workflow transitions and assignments must generate notification events that
+are queued for later processing, not delivered synchronously inline. A separate notification processor
+must consume the queue. Demonstrate that notifications are never lost even if the processor
+crashes mid-batch (e.g., via a persisted queue/outbox, not an in-memory array).
+
+9. Document/file attachments: Support attaching documents to workflow items. Re-attaching/re-
+uploading must create a new version rather than silently overwrite the previous one, and attachment/
+
+removal must respect the same permission rules as other actions.
+10. Search & pagination: Filter workflow items by state, assigned user, workflow type, and creation
+date range, with pagination for larger result sets.
+
+11. Tests (mandatory, not optional): Unit tests, integration tests, the concurrency stress tests from #5
+and #6, permission validation tests, invalid-transition rejection tests, crash recovery/event-replay
+tests, notification processing tests, and version-conflict detection tests.
