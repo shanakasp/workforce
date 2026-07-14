@@ -63,6 +63,12 @@ export class WorkflowController {
     res.json(this.workflowService.listUsers());
   };
 
+  listUsersByRole = (req: Request, res: Response) => {
+    const role = String(req.params.role).toLowerCase();
+    const users = this.workflowService.listUsers().filter((user) => user.roles.map((item) => String(item).toLowerCase()).includes(role));
+    res.json(users);
+  };
+
   createItem = (req: Request, res: Response) => {
     try {
       const item = this.workflowService.createItem(req.body);

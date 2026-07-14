@@ -16,6 +16,10 @@ router.post('/templates/:id/assign-users', workflowController.assignUsersToTempl
 
 router.post('/users', workflowController.createUser);
 router.get('/users', workflowController.listUsers);
+router.get('/users/all', workflowController.listUsers);
+router.get('/users/admin', workflowController.listUsersByRole);
+router.get('/users/reviewer', workflowController.listUsersByRole);
+router.get('/users/employee', workflowController.listUsersByRole);
 
 router.post('/items', workflowController.createItem);
 router.get('/items', workflowController.listItems);

@@ -38,6 +38,27 @@
       }
     },
     {
+      "name": "Create Employee",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Employee\",\n  \"email\": \"employee@example.com\",\n  \"roles\": [\"employee\"]\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/users",
+          "host": ["http://localhost:3000"],
+          "path": ["users"]
+        }
+      }
+    },
+    {
       "name": "Create Reviewer",
       "request": {
         "method": "POST",
@@ -103,7 +124,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"templateId\": \"template-1\",\n  \"title\": \"Holiday request\",\n  \"description\": \"One week leave\",\n  \"assignedUserIds\": [],\n  \"createdByUserId\": \"user-1\"\n}"
+          "raw": "{\n  \"templateId\": \"template-1\",\n  \"title\": \"Holiday request\",\n  \"description\": \"One week leave\",\n  \"createdByUserId\": \"user-1\"\n}"
         },
         "url": {
           "raw": "http://localhost:3000/items",
