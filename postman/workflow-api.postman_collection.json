@@ -1,0 +1,149 @@
+{
+  "info": {
+    "name": "WorkflowCore API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/health",
+          "host": ["http://localhost:3000"],
+          "path": ["health"]
+        }
+      }
+    },
+    {
+      "name": "Create User",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Admin\",\n  \"email\": \"admin@example.com\",\n  \"roles\": [\"admin\"]\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/users",
+          "host": ["http://localhost:3000"],
+          "path": ["users"]
+        }
+      }
+    },
+    {
+      "name": "Create Reviewer",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Reviewer\",\n  \"email\": \"reviewer@example.com\",\n  \"roles\": [\"reviewer\"]\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/users",
+          "host": ["http://localhost:3000"],
+          "path": ["users"]
+        }
+      }
+    },
+    {
+      "name": "Create Template",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Leave Request\",\n  \"description\": \"Standard leave request workflow\",\n  \"stages\": [\n    { \"id\": \"draft\", \"name\": \"Draft\" },\n    { \"id\": \"review\", \"name\": \"Review\" },\n    { \"id\": \"approved\", \"name\": \"Approved\" }\n  ],\n  \"transitionRules\": [\n    { \"fromStageId\": \"draft\", \"toStageId\": \"review\", \"allowedUserIds\": [], \"allowedRoles\": [\"reviewer\"] },\n    { \"fromStageId\": \"review\", \"toStageId\": \"approved\", \"allowedUserIds\": [], \"allowedRoles\": [\"admin\"] }\n  ],\n  \"assignedUserIds\": []\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/templates",
+          "host": ["http://localhost:3000"],
+          "path": ["templates"]
+        }
+      }
+    },
+    {
+      "name": "List Templates",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/templates",
+          "host": ["http://localhost:3000"],
+          "path": ["templates"]
+        }
+      }
+    },
+    {
+      "name": "Create Workflow Item",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"templateId\": \"template-1\",\n  \"title\": \"Holiday request\",\n  \"description\": \"One week leave\",\n  \"assignedUserIds\": [],\n  \"createdByUserId\": \"user-1\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/items",
+          "host": ["http://localhost:3000"],
+          "path": ["items"]
+        }
+      }
+    },
+    {
+      "name": "List Items",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/items",
+          "host": ["http://localhost:3000"],
+          "path": ["items"]
+        }
+      }
+    },
+    {
+      "name": "Transition Item",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"userId\": \"user-2\",\n  \"toStageId\": \"review\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/items/item-1/transition",
+          "host": ["http://localhost:3000"],
+          "path": ["items", "item-1", "transition"]
+        }
+      }
+    }
+  ]
+}

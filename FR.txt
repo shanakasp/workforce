@@ -1,3 +1,12 @@
+Develop a standalone backend service called WorkflowCore — a configurable workflow engine capable of
+managing business processes between multiple users while maintaining data consistency, complete audit
+history, and correct behavior under concurrent access.
+The engine must support dynamic workflow templates rather than hardcoded workflows, allowing
+administrators to define an unlimited number of workflow configurations with customizable stages,
+transitions, permissions, and approval processes. For example, one workflow may consist of Draft →
+Review → Approval → Completed, while another may follow Submitted → Technical Review → Finance
+Review → Approved.
+
 1. Workflow templates: Create/edit templates defining named stages and the valid transitions
 between them (arbitrary graph — not assumed linear), plus which roles/users may perform each
 specific transition.
