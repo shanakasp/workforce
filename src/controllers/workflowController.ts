@@ -8,84 +8,87 @@ export class WorkflowController {
     res.json({ status: 'ok' });
   };
 
-  listTemplates = (_req: Request, res: Response) => {
-    res.json(this.workflowService.listTemplates());
+  listTemplates = async (_req: Request, res: Response) => {
+    const templates = await this.workflowService.listTemplates();
+    res.json(templates);
   };
 
-  createTemplate = (req: Request, res: Response) => {
+  createTemplate = async (req: Request, res: Response) => {
     try {
-      const template = this.workflowService.createTemplate(req.body);
+      const template = await this.workflowService.createTemplate(req.body);
       res.status(201).json(template);
     } catch (error) {
       res.status(400).json({ error: (error as Error).message });
     }
   };
 
-  updateTemplate = (req: Request, res: Response) => {
+  updateTemplate = async (req: Request, res: Response) => {
     try {
-      const template = this.workflowService.updateTemplate({ id: req.params.id, ...req.body });
+      const template = await this.workflowService.updateTemplate({ id: req.params.id, ...req.body });
       res.json(template);
     } catch (error) {
       res.status(404).json({ error: (error as Error).message });
     }
   };
 
-  deleteTemplate = (req: Request, res: Response) => {
+  deleteTemplate = async (req: Request, res: Response) => {
     try {
       const templateId = String(req.params.id);
-      this.workflowService.deleteTemplate(templateId);
+      await this.workflowService.deleteTemplate(templateId);
       res.status(204).send();
     } catch (error) {
       res.status(404).json({ error: (error as Error).message });
     }
   };
 
-  assignUsersToTemplate = (req: Request, res: Response) => {
+  assignUsersToTemplate = async (req: Request, res: Response) => {
     try {
       const templateId = String(req.params.id);
-      const template = this.workflowService.assignUsersToTemplate(templateId, req.body.userIds ?? []);
+      const template = await this.workflowService.assignUsersToTemplate(templateId, req.body.userIds ?? []);
       res.json(template);
     } catch (error) {
       res.status(404).json({ error: (error as Error).message });
     }
   };
 
-  createUser = (req: Request, res: Response) => {
+  createUser = async (req: Request, res: Response) => {
     try {
-      const user = this.workflowService.createUser(req.body);
+      const user = await this.workflowService.createUser(req.body);
       res.status(201).json(user);
     } catch (error) {
       res.status(400).json({ error: (error as Error).message });
     }
   };
 
-  listUsers = (_req: Request, res: Response) => {
-    res.json(this.workflowService.listUsers());
-  };
-
-  listUsersByRole = (req: Request, res: Response) => {
-    const role = String(req.params.role).toLowerCase();
-    const users = this.workflowService.listUsers().filter((user) => user.roles.map((item) => String(item).toLowerCase()).includes(role));
+  listUsers = async (_req: Request, res: Response) => {
+    const users = await this.workflowService.listUsers();
     res.json(users);
   };
 
-  createItem = (req: Request, res: Response) => {
+  listUsersByRole = async (req: Request, res: Response) => {
+    const role = String(req.params.role).toLowerCase();
+    const users = (await this.workflowService.listUsers()).filter((user) => user.roles.map((item) => String(item).toLowerCase()).includes(role));
+    res.json(users);
+  };
+
+  createItem = async (req: Request, res: Response) => {
     try {
-      const item = this.workflowService.createItem(req.body);
+      const item = await this.workflowService.createItem(req.body);
       res.status(201).json(item);
     } catch (error) {
       res.status(400).json({ error: (error as Error).message });
     }
   };
 
-  listItems = (_req: Request, res: Response) => {
-    res.json(this.workflowService.listItems());
+  listItems = async (_req: Request, res: Response) => {
+    const items = await this.workflowService.listItems();
+    res.json(items);
   };
 
-  transitionItem = (req: Request, res: Response) => {
+  transitionItem = async (req: Request, res: Response) => {
     try {
       const itemId = String(req.params.id);
-      const item = this.workflowService.transitionItem(itemId, req.body);
+      const item = await this.workflowService.transitionItem(itemId, req.body);
       res.json(item);
     } catch (error) {
       res.status(400).json({ error: (error as Error).message });

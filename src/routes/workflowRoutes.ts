@@ -2,27 +2,30 @@ import { Router } from 'express';
 import { WorkflowController } from '../controllers/workflowController';
 import { WorkflowService } from '../services/workflowService';
 
-const router = Router();
-const workflowService = new WorkflowService();
-const workflowController = new WorkflowController(workflowService);
+export function createWorkflowRoutes(workflowService: WorkflowService) {
+  const router = Router();
+  const workflowController = new WorkflowController(workflowService);
 
-router.get('/health', workflowController.health);
+  router.get('/health', workflowController.health);
 
-router.get('/templates', workflowController.listTemplates);
-router.post('/templates', workflowController.createTemplate);
-router.put('/templates/:id', workflowController.updateTemplate);
-router.delete('/templates/:id', workflowController.deleteTemplate);
-router.post('/templates/:id/assign-users', workflowController.assignUsersToTemplate);
+  router.get('/templates', workflowController.listTemplates);
+  router.post('/templates', workflowController.createTemplate);
+  router.put('/templates/:id', workflowController.updateTemplate);
+  router.delete('/templates/:id', workflowController.deleteTemplate);
+  router.post('/templates/:id/assign-users', workflowController.assignUsersToTemplate);
 
-router.post('/users', workflowController.createUser);
-router.get('/users', workflowController.listUsers);
-router.get('/users/all', workflowController.listUsers);
-router.get('/users/admin', workflowController.listUsersByRole);
-router.get('/users/reviewer', workflowController.listUsersByRole);
-router.get('/users/employee', workflowController.listUsersByRole);
+  router.post('/users', workflowController.createUser);
+  router.get('/users', workflowController.listUsers);
+  router.get('/users/all', workflowController.listUsers);
+  router.get('/users/admin', workflowController.listUsersByRole);
+  router.get('/users/reviewer', workflowController.listUsersByRole);
+  router.get('/users/employee', workflowController.listUsersByRole);
 
-router.post('/items', workflowController.createItem);
-router.get('/items', workflowController.listItems);
-router.post('/items/:id/transition', workflowController.transitionItem);
+  router.post('/items', workflowController.createItem);
+  router.get('/items', workflowController.listItems);
+  router.post('/items/:id/transition', workflowController.transitionItem);
 
-export default router;
+  return router;
+}
+
+export default createWorkflowRoutes(new WorkflowService());

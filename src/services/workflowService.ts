@@ -7,67 +7,102 @@ import {
   WorkflowTemplate,
   WorkflowUser
 } from '../models/workflow';
+import { InMemoryWorkflowStore, PostgresWorkflowStore, WorkflowState } from '../persistence/workflowStore';
+
 export class WorkflowService {
   private users: WorkflowUser[] = [];
   private templates: WorkflowTemplate[] = [];
   private items: WorkflowItem[] = [];
+  private readonly store: InMemoryWorkflowStore | PostgresWorkflowStore;
 
-  createUser(input: Omit<WorkflowUser, 'id'>): WorkflowUser {
+  constructor(store?: InMemoryWorkflowStore | PostgresWorkflowStore) {
+    this.store = store ?? (process.env.DATABASE_URL ? new PostgresWorkflowStore() : new InMemoryWorkflowStore());
+  }
+
+  private async persist(): Promise<void> {
+    await this.store.saveState({ users: this.users, templates: this.templates, items: this.items });
+  }
+
+  private async hydrate(): Promise<void> {
+    const state = await this.store.loadState();
+    this.users = state.users;
+    this.templates = state.templates;
+    this.items = state.items;
+  }
+
+  async initialize(): Promise<void> {
+    await this.hydrate();
+  }
+
+  async createUser(input: Omit<WorkflowUser, 'id'>): Promise<WorkflowUser> {
+    await this.hydrate();
     const user: WorkflowUser = {
       id: `user-${this.users.length + 1}`,
       ...input
     };
     this.users.push(user);
+    await this.persist();
     return user;
   }
 
-  listUsers(): WorkflowUser[] {
+  async listUsers(): Promise<WorkflowUser[]> {
+    await this.hydrate();
     return [...this.users];
   }
 
-  createTemplate(input: CreateTemplateInput): WorkflowTemplate {
+  async createTemplate(input: CreateTemplateInput): Promise<WorkflowTemplate> {
+    await this.hydrate();
     const template: WorkflowTemplate = {
       id: `template-${this.templates.length + 1}`,
       ...input,
       createdAt: new Date().toISOString()
     };
     this.templates.push(template);
+    await this.persist();
     return template;
   }
 
-  listTemplates(): WorkflowTemplate[] {
+  async listTemplates(): Promise<WorkflowTemplate[]> {
+    await this.hydrate();
     return [...this.templates];
   }
 
-  updateTemplate(input: UpdateTemplateInput): WorkflowTemplate {
+  async updateTemplate(input: UpdateTemplateInput): Promise<WorkflowTemplate> {
+    await this.hydrate();
     const template = this.templates.find((candidate) => candidate.id === input.id);
     if (!template) {
       throw new Error('Template not found');
     }
 
     Object.assign(template, input);
+    await this.persist();
     return template;
   }
 
-  deleteTemplate(templateId: string): void {
+  async deleteTemplate(templateId: string): Promise<void> {
+    await this.hydrate();
     const index = this.templates.findIndex((candidate) => candidate.id === templateId);
     if (index === -1) {
       throw new Error('Template not found');
     }
     this.templates.splice(index, 1);
+    await this.persist();
   }
 
-  assignUsersToTemplate(templateId: string, userIds: string[]): WorkflowTemplate {
+  async assignUsersToTemplate(templateId: string, userIds: string[]): Promise<WorkflowTemplate> {
+    await this.hydrate();
     const template = this.templates.find((candidate) => candidate.id === templateId);
     if (!template) {
       throw new Error('Template not found');
     }
 
     template.assignedUserIds = userIds;
+    await this.persist();
     return template;
   }
 
-  createItem(input: CreateItemInput): WorkflowItem {
+  async createItem(input: CreateItemInput): Promise<WorkflowItem> {
+    await this.hydrate();
     const template = this.templates.find((candidate) => candidate.id === input.templateId);
     if (!template) {
       throw new Error('Template not found');
@@ -105,14 +140,17 @@ export class WorkflowService {
     };
 
     this.items.push(item);
+    await this.persist();
     return item;
   }
 
-  listItems(): WorkflowItem[] {
+  async listItems(): Promise<WorkflowItem[]> {
+    await this.hydrate();
     return [...this.items];
   }
 
-  transitionItem(itemId: string, input: TransitionItemInput): WorkflowItem {
+  async transitionItem(itemId: string, input: TransitionItemInput): Promise<WorkflowItem> {
+    await this.hydrate();
     const item = this.items.find((candidate) => candidate.id === itemId);
     if (!item) {
       throw new Error('Item not found');
@@ -155,6 +193,7 @@ export class WorkflowService {
       createdAt: new Date().toISOString()
     });
 
+    await this.persist();
     return item;
   }
 }

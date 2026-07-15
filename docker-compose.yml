@@ -7,21 +7,7 @@ services:
     command: sh -c "npm install && npm run build && node dist/index.js"
     environment:
       PORT: 3000
-      DATABASE_URL: postgres://postgres:postgres@127.0.0.1:5432/workforce
-    network_mode: host
-    depends_on:
-      - db
+      DATABASE_URL: ${DATABASE_URL:-postgres://postgres:postgres@host.docker.internal:5432/workforce}
     restart: unless-stopped
 
-  db:
-    image: postgres:16-alpine
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: workforce
-    network_mode: host
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-
-volumes:
-  postgres_data:
+volumes: {}
