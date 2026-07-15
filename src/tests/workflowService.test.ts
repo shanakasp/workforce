@@ -118,6 +118,46 @@ test('lists created items and rejects unauthorized transitions', async () => {
   );
 });
 
+test('only explicitly allowed users can use a user-restricted transition rule', async () => {
+  const service = new WorkflowService();
+
+  const reviewerA = await service.createUser({ name: 'Reviewer A', email: 'reviewer-a@example.com', roles: ['reviewer'] });
+  const reviewerB = await service.createUser({ name: 'Reviewer B', email: 'reviewer-b@example.com', roles: ['reviewer'] });
+  const employee = await service.createUser({ name: 'Employee', email: 'employee@example.com', roles: ['employee'] });
+
+  const template = await service.createTemplate({
+    name: 'Leave Request',
+    description: 'Restricted reviewer transition',
+    stages: [
+      { id: 'draft', name: 'Draft' },
+      { id: 'review', name: 'Review' },
+      { id: 'preapproved', name: 'Preapproved' }
+    ],
+    transitionRules: [
+      { fromStageId: 'draft', toStageId: 'review', allowedUserIds: [reviewerA.id], allowedRoles: [] },
+      { fromStageId: 'review', toStageId: 'preapproved', allowedUserIds: [reviewerA.id], allowedRoles: ['reviewer'] }
+    ],
+    assignedUserIds: [reviewerA.id, reviewerB.id]
+  });
+
+  const item = await service.createItem({
+    templateId: template.id,
+    title: 'Holiday request',
+    description: 'One week leave',
+    createdByUserId: employee.id
+  });
+
+  await service.transitionItem(item.id, { userId: reviewerA.id, toStageId: 'review' });
+
+  await assert.rejects(
+    () => service.transitionItem(item.id, { userId: reviewerB.id, toStageId: 'preapproved' }),
+    /Unauthorized transition/
+  );
+
+  const allowedTransition = await service.transitionItem(item.id, { userId: reviewerA.id, toStageId: 'preapproved' });
+  assert.equal(allowedTransition.currentStageId, 'preapproved');
+});
+
 test('admin can create a template and move an item through a permitted stage', async () => {
   const service = new WorkflowService();
 

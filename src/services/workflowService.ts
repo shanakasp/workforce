@@ -174,9 +174,12 @@ export class WorkflowService {
       throw new Error('User not found');
     }
 
+    const hasExplicitUserAccess = rule.allowedUserIds.includes(input.userId);
+    const hasRoleAccess = rule.allowedRoles.some((role) => user.roles.includes(role));
+
     const isAllowed =
-      rule.allowedUserIds.includes(input.userId) ||
-      rule.allowedRoles.some((role) => user.roles.includes(role));
+      (rule.allowedUserIds.length > 0 ? hasExplicitUserAccess : hasRoleAccess) ||
+      (rule.allowedUserIds.length === 0 && hasRoleAccess);
 
     if (!isAllowed) {
       throw new Error('Unauthorized transition');
