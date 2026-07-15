@@ -38,7 +38,7 @@ export class InMemoryWorkflowStore implements WorkflowStore {
 export class PostgresWorkflowStore implements WorkflowStore {
   private readonly pool: Pool;
 
-  constructor(connectionString = process.env.DATABASE_URL ?? 'postgres://postgres:postgres@localhost:5432/workforce') {
+  constructor(connectionString = process.env.DATABASE_URL ?? 'postgres://postgres:postgres@db:5432/workforce') {
     this.pool = new Pool({
       connectionString,
       ssl: false
